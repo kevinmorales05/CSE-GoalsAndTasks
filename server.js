@@ -1,5 +1,7 @@
 const express = require("express");
 const http = require("http");
+const cors = require('cors');
+
 
 const mongodb = require("./data/database.js");
 
@@ -13,6 +15,8 @@ const port = process.env.PORT || 3000;
 
 //read jsons
 app.use(bodyParser.json());
+//use cors
+app.use(cors());
 //app.use(multer());
 app.use(express.json());
 

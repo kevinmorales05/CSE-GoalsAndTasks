@@ -1,5 +1,7 @@
 const mongodb = require('../data/database');
 const ObjectId = require('mongodb').ObjectId;
+const { query, validationResult } = require('express-validator');
+
 
 const getAll = async (req, res) => {
     //#swagger.tags=['Users']
@@ -48,6 +50,8 @@ const updateUser = async (req, res) => {
     }
 }
 const createUser = async (req, res) => {
+    const result = validationResult(req);
+    console.log('results ', result);
     //#swagger.tags=['Users']
     console.log('request',req.body);
     const user = {
