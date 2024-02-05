@@ -18,79 +18,90 @@ const getSingle = async (req, res) => {
   //#swagger.tags=['Users']
   console.log("get single");
   console.log("from params ", req.params.id);
-  
+
   if (req.params.id == undefined || null) {
     console.log("Param is empty");
   }
 
-  if(req.params.id.length == 24){
-    console.log('user id valid!');
+  if (req.params.id.length == 24) {
+    console.log("user id valid!");
     const userId = new ObjectId(req.params.id);
     const result = await mongodb
-    .getDatabase()
-    .db()
-    .collection("users")
-    .find({ _id: userId });
-    console.log('Param found!');
-    console.log('this is the result ', JSON.stringify(result._eventsCount))
+      .getDatabase()
+      .db()
+      .collection("users")
+      .find({ _id: userId });
+    console.log("Param found!");
+    console.log("this is the result ", JSON.stringify(result._eventsCount));
     result.toArray().then((users) => {
-      console.log('this is the result ', JSON.stringify(users)) 
+      console.log("this is the result ", JSON.stringify(users));
       //analize if the sysstem found a user
-      if(users.length == 0){
-        console.log('User not found!');
+      if (users.length == 0) {
+        console.log("User not found!");
         return res.status(404).json({ error: "User not found" });
       }
       res.setHeader("Content-Type", "application/json");
       res.status(200).json(users[0]);
     });
-  }
-  else {
+  } else {
     return res.status(404).json({ error: "User id invalid!" });
   }
-  
 };
 const updateUser = async (req, res) => {
   //#swagger.tags=['Users']
   console.log("Update User");
-  const userId = new ObjectId(req.params.id);
-  console.log("this is the param ", userId);
+  if (req.params.id.length == 24) {
+    const userId = new ObjectId(req.params.id);
+    console.log('Valid id!')
+    //find user
+    const result = await mongodb
+      .getDatabase()
+      .db()
+      .collection("users")
+      .find({ _id: userId });
 
-//find user
-const result = await mongodb
-    .getDatabase()
-    .db()
-    .collection("users")
-    .find({ _id: userId });
-  
-  
     const user = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        favoriteColor: req.body.favoriteColor,
-        birthday: req.body.birthday,
-      };
-      const validations = validationResult(req);
-      console.log("Validations ", validations);
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      favoriteColor: req.body.favoriteColor,
+      birthday: req.body.birthday,
+    };
+    const validations = validationResult(req);
+    console.log("Validations ", validations);
 
-      console.log("this is the new body ", user);
-      const response = await mongodb
-        .getDatabase()
-        .db()
-        .collection("users")
-        .replaceOne({ _id: userId }, user);
-      if (response.modifiedCount > 0) {
-        res.status(200).send();
-      } else {
-        res
-          .status(200)
-          .json(response.error || "User not found");
-      }
-  
+    //validations
+    if (validations.errors.length > 0) {
+        let errorDescriptions = "Payload invalid :";
+        validations.errors.map((er) => {
+        errorDescriptions = errorDescriptions + " " + er.msg + ", ";
+        console.log("Some errors in the payload");
+        console.log("descriptions ", errorDescriptions);
+        return res.status(404).json({ error: `${errorDescriptions}` });
+    });
+    }
+    else {
+        console.log("this is the new body ", user);
+    const response = await mongodb
+      .getDatabase()
+      .db()
+      .collection("users")
+      .replaceOne({ _id: userId }, user);
+    if (response.modifiedCount > 0) {
+      res.status(200).send("Element updated successfully!");
+    } else {
+      res.status(200).json(response.error || "User not found");
+    }
+
+    }
+
+  } else {
+    return res.status(404).json({ error: "User id invalid!" });
+  }
 };
 const createUser = async (req, res) => {
   const result = validationResult(req);
-  console.log("results ", result);
+  console.log("results ", result.errors);
   //#swagger.tags=['Users']
   console.log("request", req.body);
   const user = {
@@ -100,17 +111,28 @@ const createUser = async (req, res) => {
     favoriteColor: req.body.favoriteColor,
     birthday: req.body.birthday,
   };
-  const response = await mongodb
-    .getDatabase()
-    .db()
-    .collection("users")
-    .insertOne(user);
-  if (response.acknowledged > 0) {
-    res.status(200).send();
+  if (result.errors.length > 0) {
+    let errorDescriptions = "Payload invalid :";
+    result.errors.map((er) => {
+      errorDescriptions = errorDescriptions + " " + er.msg + ", ";
+    });
+    console.log("Some errors in the payload");
+    console.log("descriptions ", errorDescriptions);
+    return res.status(404).json({ error: `${errorDescriptions}` });
   } else {
-    res
-      .status(200)
-      .json(response.error || "Some Error ocurred while creating the user");
+    console.log("Valid schemas!");
+    const response = await mongodb
+      .getDatabase()
+      .db()
+      .collection("users")
+      .insertOne(user);
+    if (response.acknowledged > 0) {
+      res.status(200).send("Element added successfully!");
+    } else {
+      res
+        .status(200)
+        .json(response.error || "Some Error ocurred while creating the user");
+    }
   }
 };
 

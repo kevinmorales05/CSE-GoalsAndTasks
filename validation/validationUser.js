@@ -5,8 +5,7 @@ const validationUser = [
   body("lastName").notEmpty().withMessage("Last name is required!"),
   body("favoriteColor").optional(),
   body("birthday").notEmpty().withMessage("Birthday is required!"),
-  body("email").notEmpty().withMessage("email is required").trim().isEmail().withMessage("Email format is incorrect!"),
-  query("id").notEmpty().withMessage('User id is required!')
+  body("email").notEmpty().withMessage("email is required").trim().isEmail().withMessage("Email format is incorrect!")
 ];
 
 module.exports = validationUser;
