@@ -52,7 +52,7 @@ const updateUser = async (req, res) => {
   console.log("Update User");
   if (req.params.id.length == 24) {
     const userId = new ObjectId(req.params.id);
-    console.log('Valid id!')
+    console.log("Valid id!");
     //find user
     const result = await mongodb
       .getDatabase()
@@ -72,29 +72,26 @@ const updateUser = async (req, res) => {
 
     //validations
     if (validations.errors.length > 0) {
-        let errorDescriptions = "Payload invalid :";
-        validations.errors.map((er) => {
+      let errorDescriptions = "Payload invalid :";
+      validations.errors.map((er) => {
         errorDescriptions = errorDescriptions + " " + er.msg + ", ";
         console.log("Some errors in the payload");
         console.log("descriptions ", errorDescriptions);
         return res.status(404).json({ error: `${errorDescriptions}` });
-    });
-    }
-    else {
-        console.log("this is the new body ", user);
-    const response = await mongodb
-      .getDatabase()
-      .db()
-      .collection("users")
-      .replaceOne({ _id: userId }, user);
-    if (response.modifiedCount > 0) {
-      res.status(200).send("Element updated successfully!");
+      });
     } else {
-      res.status(200).json(response.error || "User not found");
+      console.log("this is the new body ", user);
+      const response = await mongodb
+        .getDatabase()
+        .db()
+        .collection("users")
+        .replaceOne({ _id: userId }, user);
+      if (response.modifiedCount > 0) {
+        res.status(200).send("Element updated successfully!");
+      } else {
+        res.status(200).json(response.error || "User not found");
+      }
     }
-
-    }
-
   } else {
     return res.status(404).json({ error: "User id invalid!" });
   }
@@ -138,23 +135,30 @@ const createUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   //#swagger.tags=['Users']
-  console.log("Delete User");
-  const userId = new ObjectId(req.params.id);
-  console.log("this is the param ", userId);
-  const response = await mongodb
-    .getDatabase()
-    .db()
-    .collection("users")
-    .deleteOne({ _id: userId });
-  if (response.deletedCount > 0) {
-    res.status(200).send();
+
+  //validate the size of the param.id
+  if (req.params.id.length == 24) {
+    console.log("Delete User");
+    const userId = new ObjectId(req.params.id);
+    console.log("this is the param ", userId);
+
+    const response = await mongodb
+      .getDatabase()
+      .db()
+      .collection("users")
+      .deleteOne({ _id: userId });
+    if (response.deletedCount > 0) {
+      res.status(200).send("Element deleted successfylly!");
+    } else {
+      res
+        .status(200)
+        .json(
+          response.error ||
+            `Some Error ocurred while deleting the user`
+        );
+    }
   } else {
-    res
-      .status(200)
-      .json(
-        response.error ||
-          `Some Error ocurred while deleting the user ${response.error}`
-      );
+    return res.status(404).json({ error: "User id invalid!" });
   }
 };
 
