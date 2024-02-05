@@ -17,7 +17,14 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 //use cors
 app.use(cors());
-//app.use(multer());
+
+// Middleware de manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  // Responder con un código de estado 500 y un mensaje de error genérico
+  res.status(500).json({ error: 'Error interno del servidor' });
+});
+
 app.use(express.json());
 
 app.use((req, res, next) => {

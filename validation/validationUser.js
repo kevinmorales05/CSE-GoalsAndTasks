@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, query } = require("express-validator");
 
 const validationUser = [
   body("firstName").notEmpty().withMessage("Name is required!"),
@@ -6,6 +6,7 @@ const validationUser = [
   body("favoriteColor").optional(),
   body("birthday").notEmpty().withMessage("Birthday is required!"),
   body("email").notEmpty().withMessage("email is required").trim().isEmail().withMessage("Email format is incorrect!"),
+  query("id").notEmpty().withMessage('User id is required!')
 ];
 
 module.exports = validationUser;
