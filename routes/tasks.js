@@ -3,15 +3,16 @@ const express = require('express');
 const router = express.Router();
 
 const tasksController = require("../controllers/tasks");
+const { isAuthenticated } = require('../middleware/authenticate');
 
 router
   .get('/:id', tasksController.getSingleTask)
 
   //Part 2
-  .post('/', tasksController.createTask)
-  .put('/:id', tasksController.updateTask)
-  .delete('/:id', tasksController.deleteTask)
+  .post('/', isAuthenticated, tasksController.createTask)
+  .put('/:id', isAuthenticated, tasksController.updateTask)
+  .delete('/:id', isAuthenticated, tasksController.deleteTask)
   .get('/', tasksController.getAllTasks)
-  .get('/tasksByGoal/:id', tasksController.getTasksByGoal);
+  .get('/tasksByGoal/:id', isAuthenticated, tasksController.getTasksByGoal);
 
 module.exports = router;

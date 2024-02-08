@@ -4,15 +4,16 @@ const router = express.Router();
 
 const goalsController = require("../controllers/goals");
 const validationGoals = require('../validation/validationGoal');
+const { isAuthenticated } = require('../middleware/authenticate');
 
 router
   .get('/:id', goalsController.getSingleGoal)
 
   //Part 2
-  .post('/', validationGoals, goalsController.createGoal)
-  .put('/:id', validationGoals, goalsController.updateGoal)
-  .delete('/:id', goalsController.deleteGoal)
+  .post('/', isAuthenticated, validationGoals, goalsController.createGoal)
+  .put('/:id', isAuthenticated, validationGoals, goalsController.updateGoal)
+  .delete('/:id',isAuthenticated, goalsController.deleteGoal)
   .get('/', goalsController.getAllGoals)
-  .get('/goalsByUser/:id', goalsController.getUsersGoals);
+  .get('/goalsByUser/:id', isAuthenticated, goalsController.getUsersGoals);
 
 module.exports = router;
